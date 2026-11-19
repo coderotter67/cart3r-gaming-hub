@@ -1,0 +1,11 @@
+const express = require("express");
+const helmet = require("helmet");
+const path = require("path");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.use(helmet({contentSecurityPolicy:{directives:{...helmet.contentSecurityPolicy.getDefaultDirectives(),"frame-ancestors":["'self'","https://sites.google.com","https://*.sites.google.com"]}}}));
+app.use(express.json());
+app.use(express.static(path.join(__dirname,"public")));
+app.get("/api/health",(_req,res)=>res.json({status:"ok",app:"CART3R Gaming Hub"}));
+app.get("*",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+app.listen(PORT,()=>console.log("CART3R Gaming Hub listening on "+PORT));
