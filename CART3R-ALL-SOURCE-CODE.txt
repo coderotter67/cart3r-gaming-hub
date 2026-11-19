@@ -1,0 +1,286 @@
+# CART3R GAMING HUB — COMPLETE SOURCE CODE
+This is a combined reference copy of every project source/config file listed below.
+Files are separated by clear headers. This TXT is not itself executable as one program; restore each section to its named path to run/deploy the complete project. The frontend can be combined into one HTML file, but the Node server and deployment config must remain separate files.
+
+
+==============================================================================
+FILE: package.json
+==============================================================================
+
+{
+  "name": "cart3r-gaming-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CART3R Gaming Hub — game discovery and original browser arcade",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
+==============================================================================
+FILE: server.js
+==============================================================================
+
+const express = require("express");
+const helmet = require("helmet");
+const path = require("path");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.use(helmet({frameguard:false,contentSecurityPolicy:{directives:{...helmet.contentSecurityPolicy.getDefaultDirectives(),"frame-ancestors":["'self'","https://sites.google.com","https://*.sites.google.com"]}}}));
+app.use(express.json());
+app.use(express.static(path.join(__dirname,"public")));
+app.get("/api/health",(_req,res)=>res.json({status:"ok",app:"CART3R Gaming Hub"}));
+app.get("*",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+app.listen(PORT,()=>console.log("CART3R Gaming Hub listening on "+PORT));
+
+
+==============================================================================
+FILE: render.yaml
+==============================================================================
+
+services:
+  - type: web
+    name: cart3r-gaming-hub
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+
+==============================================================================
+FILE: .gitignore
+==============================================================================
+
+node_modules/
+.env
+.DS_Store
+npm-debug.log*
+
+
+==============================================================================
+FILE: README.md
+==============================================================================
+
+# CART3R Gaming Hub
+
+Mobile-first game discovery portal with three original browser mini-games: Neon Tap, Memory Grid, and Snake Mini.
+
+## Run locally
+Requires Node.js 20+.
+```bash
+npm install
+npm start
+```
+Open http://localhost:3000. Health check: http://localhost:3000/api/health.
+
+## Deploy on Render
+1. Connect this GitHub repository to a new Render Web Service.
+2. Runtime: Node; Build command: `npm install`; Start command: `npm start`.
+3. Deploy and use the HTTPS URL Render provides.
+
+## Embed in Google Sites
+In the Google Sites editor choose **Insert → Embed → By URL**, paste the hosted HTTPS URL, resize the frame, and preview on mobile. If embedding behaves oddly, link to the hosted site directly in a new tab.
+
+## Catalog note
+Commercial games link to official publisher/platform pages. This repository does not include copyrighted commercial game files or game streaming. The 20 titles are a curated starter selection, not a verified US top-20 ranking. Availability and platform support vary.
+
+## Customize
+Edit the catalog and mini-games in `public/app.js`, styles in `public/styles.css`, and page structure in `public/index.html`.
+
+
+==============================================================================
+FILE: public/index.html
+==============================================================================
+
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b12"><meta name="description" content="CART3R Gaming Hub — original browser games you can play right here."><title>CART3R Gaming Hub</title><link rel="stylesheet" href="/styles.css"></head>
+<body><header><a class="brand" href="#">◈ CART3R<span>.HUB</span></a><nav><a href="#arcade">Arcade</a><a href="#city">CART3R City</a><a href="#classics">Classics</a><a href="#discover">Game library</a><a href="#about">About</a></nav><a class="btn" href="#arcade">PLAY NOW ↗</a></header>
+<main><section class="hero"><div><p class="eyebrow">YOUR NEXT LEVEL STARTS HERE</p><h1>ENTER THE<br><em>GAME ZONE.</em></h1><p class="lead">Pick a game and play instantly. Original browser games run right here on CART3R — no download or trip to another game site needed.</p><a class="btn" href="#arcade">PLAY 10 NEW GAMES</a> <a class="plain" href="#classics">More arcade games ↓</a></div><div class="art"><div class="orb">C<span>3</span></div><b>LEVEL UP</b></div></section>
+<section id="arcade" class="arcade"><p class="eyebrow">PLAY RIGHT HERE · NO DOWNLOAD</p><h2>THE CART3R <em>ARCADE.</em></h2><p class="section-lead">Ten quick games, built into this website. Tap PLAY on any card to start.</p><div id="newGames" class="new-games">
+<article class="play-card" data-game="math"><div class="card-top"><small>01 · BRAIN</small><span>🧠</span></div><h3>QUICK MATH</h3><p>Solve as many sums as you can in 30 seconds.</p><div class="game-ui"><div class="game-status" id="mathStatus">Ready?</div><button class="btn" data-action="math-start">PLAY</button><div class="inline-controls"><input id="mathAnswer" type="number" placeholder="Answer" aria-label="Math answer"><button data-action="math-submit">GO</button></div><small id="mathScore">Score: 0</small></div></article>
+<article class="play-card" data-game="guess"><div class="card-top"><small>02 · LOGIC</small><span>🎯</span></div><h3>NUMBER HUNT</h3><p>Find the secret number from 1 to 100.</p><div class="game-ui"><div class="game-status" id="guessStatus">I'm thinking of a number.</div><div class="inline-controls"><input id="guessInput" type="number" min="1" max="100" placeholder="1–100"><button data-action="guess">GUESS</button></div><button class="sub-btn" data-action="guess-reset">NEW NUMBER</button><small id="guessCount">Guesses: 0</small></div></article>
+<article class="play-card" data-game="rps"><div class="card-top"><small>03 · ARCADE</small><span>✊</span></div><h3>ROCK PAPER SCISSORS</h3><p>Can you beat the CART3R CPU?</p><div class="game-ui"><div class="game-status" id="rpsStatus">Choose your move.</div><div class="choice-row"><button data-action="rps" data-choice="rock">✊</button><button data-action="rps" data-choice="paper">✋</button><button data-action="rps" data-choice="scissors">✌️</button></div><small id="rpsScore">You 0 · CPU 0</small></div></article>
+<article class="play-card" data-game="ttt"><div class="card-top"><small>04 · STRATEGY</small><span>⭕</span></div><h3>TIC TAC TOE</h3><p>Get three in a row against the computer.</p><div class="game-ui"><div class="game-status" id="tttStatus">Your turn — X.</div><div id="tttBoard" class="ttt-board"><button data-action="ttt" data-cell="0" aria-label="Tic tac toe cell 1"></button><button data-action="ttt" data-cell="1" aria-label="Tic tac toe cell 2"></button><button data-action="ttt" data-cell="2" aria-label="Tic tac toe cell 3"></button><button data-action="ttt" data-cell="3" aria-label="Tic tac toe cell 4"></button><button data-action="ttt" data-cell="4" aria-label="Tic tac toe cell 5"></button><button data-action="ttt" data-cell="5" aria-label="Tic tac toe cell 6"></button><button data-action="ttt" data-cell="6" aria-label="Tic tac toe cell 7"></button><button data-action="ttt" data-cell="7" aria-label="Tic tac toe cell 8"></button><button data-action="ttt" data-cell="8" aria-label="Tic tac toe cell 9"></button></div><button class="sub-btn" data-action="ttt-reset">RESET</button></div></article>
+<article class="play-card" data-game="reaction"><div class="card-top"><small>05 · SPEED</small><span>⚡</span></div><h3>REACTION TEST</h3><p>Wait for green, then click as fast as you can.</p><div class="game-ui"><button class="reaction-pad" id="reactionPad" data-action="reaction-start">START TEST</button><div class="game-status" id="reactionStatus">Don't click too early!</div><small id="reactionBest">Best: —</small></div></article>
+<article class="play-card" data-game="whack"><div class="card-top"><small>06 · REFLEX</small><span>🐹</span></div><h3>WHACK-A-DOT</h3><p>Hit the glowing target as many times as you can in 20 seconds.</p><div class="game-ui"><div class="game-status" id="whackStatus">Ready to play?</div><div id="whackGrid" class="whack-grid"><button data-action="whack" data-hole="0" aria-label="Target hole 1">·</button><button data-action="whack" data-hole="1" aria-label="Target hole 2">·</button><button data-action="whack" data-hole="2" aria-label="Target hole 3">·</button><button data-action="whack" data-hole="3" aria-label="Target hole 4">·</button><button data-action="whack" data-hole="4" aria-label="Target hole 5">·</button><button data-action="whack" data-hole="5" aria-label="Target hole 6">·</button><button data-action="whack" data-hole="6" aria-label="Target hole 7">·</button><button data-action="whack" data-hole="7" aria-label="Target hole 8">·</button><button data-action="whack" data-hole="8" aria-label="Target hole 9">·</button></div><button class="btn" data-action="whack-start">START · 20 SEC</button><small id="whackScore">Score: 0</small></div></article>
+<article class="play-card" data-game="typing"><div class="card-top"><small>07 · SKILL</small><span>⌨️</span></div><h3>TYPE RUSH</h3><p>Type the phrase exactly. See how quickly you finish.</p><div class="game-ui"><div class="game-status" id="typingPhrase">Ready when you are.</div><input id="typingInput" type="text" placeholder="Type the phrase here" autocomplete="off"><button class="btn" data-action="typing-start">NEW PHRASE</button><small id="typingStatus">Timer starts when you begin typing.</small></div></article>
+<article class="play-card" data-game="color"><div class="card-top"><small>08 · FOCUS</small><span>🎨</span></div><h3>COLOR SNAP</h3><p>Tap the button matching the displayed color name.</p><div class="game-ui"><div class="game-status" id="colorPrompt">Press start.</div><div class="color-options"><button data-action="color" data-color="red">RED</button><button data-action="color" data-color="blue">BLUE</button><button data-action="color" data-color="green">GREEN</button><button data-action="color" data-color="yellow">YELLOW</button></div><button class="sub-btn" data-action="color-start">START / RESET</button><small id="colorScore">Score: 0</small></div></article>
+<article class="play-card" data-game="higher"><div class="card-top"><small>09 · LUCK</small><span>📈</span></div><h3>HIGHER OR LOWER</h3><p>Will the next card be higher or lower? Build a streak.</p><div class="game-ui"><div class="number-card" id="higherCard">7</div><div class="game-status" id="higherStatus">Guess the next card.</div><div class="choice-row"><button data-action="higher" data-dir="higher">HIGHER ▲</button><button data-action="higher" data-dir="lower">LOWER ▼</button></div><small id="higherScore">Streak: 0 · Best: 0</small><button class="sub-btn" data-action="higher-reset">NEW ROUND</button></div></article>
+<article class="play-card" data-game="dodge"><div class="card-top"><small>10 · SURVIVAL</small><span>🚀</span></div><h3>PIXEL DODGE</h3><p>Move left and right. Dodge the falling blocks for as long as possible.</p><div class="game-ui"><canvas id="dodgeCanvas" width="280" height="180"></canvas><div class="choice-row"><button data-action="dodge-left">◀ LEFT</button><button data-action="dodge-start">START</button><button data-action="dodge-right">RIGHT ▶</button></div><small id="dodgeScore">Time: 0s</small></div></article>
+</div></section>
+<section id="city" class="arcade city-section">
+<p class="eyebrow">FIRST ORIGINAL OPEN-WORLD GAME · PLAY IN CART3R</p>
+<h2>CART3R <em>CITY.</em></h2>
+<p class="section-lead">Explore the city, hop into a car, collect cash, and complete delivery missions. No downloads.</p>
+<div class="city-shell">
+  <div class="city-hud"><span id="cityMode">ON FOOT</span><span id="cityCash">$0</span><span id="cityMission">Find the blue mission marker.</span></div>
+  <canvas id="cityCanvas" width="960" height="560" aria-label="CART3R City open-world game"></canvas>
+  <div class="city-controls">
+    <div class="city-pad"><button data-city-key="w">▲</button><div><button data-city-key="a">◀</button><button data-city-key="s">▼</button><button data-city-key="d">▶</button></div></div>
+    <div class="city-actions"><button id="cityInteract">E · ENTER / EXIT</button><button id="cityMissionBtn">START MISSION</button><button id="cityReset">RESTART</button></div>
+  </div>
+  <p class="city-help">Move: WASD / arrow keys · Enter or exit a car: E or SPACE · Drive: steer with WASD · Follow the blue marker to start a delivery. On phones, use the controls below the map.</p>
+</div>
+</section>\n<section id="classics" class="arcade classics"><p class="eyebrow">MORE FREE BROWSER GAMES</p><h2>ARCADE <em>CLASSICS.</em></h2><div class="minis">
+<article><h3>⚡ NEON TAP</h3><p>Tap as fast as you can before the timer ends.</p><p>TIME <b id="time">15</b> · SCORE <b id="score">0</b></p><button id="tap" class="target">TAP!</button><button id="start" class="btn">START ROUND</button></article>
+<article><h3>▦ MEMORY GRID</h3><p>Find all six matching pairs.</p><p>MOVES <b id="moves">0</b> · PAIRS <b id="pairs">0/6</b></p><div id="memory" class="memory"></div><button id="reset" class="btn">NEW GAME</button></article>
+<article><h3>🐍 SNAKE MINI</h3><p>Use arrow keys or WASD. Collect dots and avoid your tail.</p><p>SCORE <b id="snakeScore">0</b></p><canvas id="snake" width="300" height="240"></canvas><button id="snakeStart" class="btn">START / RESTART</button></article></div></section>
+<section id="discover"><p class="eyebrow">THE GAME DIRECTORY</p><h2>BIG GAMES. <em>ONE LIBRARY.</em></h2><p class="section-lead">These commercial games are listed for discovery. They require their official platform or launcher; the playable games above run directly on CART3R.</p><input id="search" placeholder="Search games..." aria-label="Search games"><div id="filters"><button class="active" data-filter="All">All</button><button data-filter="Action">Action</button><button data-filter="Adventure">Adventure</button><button data-filter="Battle Royale">Battle Royale</button><button data-filter="Sports">Sports</button><button data-filter="RPG">RPG</button></div><div id="games" class="games"></div><p class="note">Curated starter selection, not a verified US top-20 ranking. Availability and platforms vary by region.</p></section>
+<section id="official-play" class="arcade"><p class="eyebrow">OFFICIAL GAME LAUNCHERS</p><h2>PLAY THE <em>BIG GAMES.</em></h2><p class="section-lead">Launch the real games through their official services. CART3R does not host or copy these commercial games.</p><div class="games">
+<article class="game"><small>FREE · CLOUD PLAY</small><h3>FORTNITE</h3><p>Play Fortnite in a supported browser through Xbox Cloud Gaming. A Microsoft account, supported device, and available network access are required.</p><a href="https://www.xbox.com/en-US/play/games/bt5p2x999vh2" target="_blank" rel="noopener noreferrer">PLAY FORTNITE ↗</a></article>
+<article class="game"><small>AVAILABLE NOW · PS5 / XBOX</small><h3>GRAND THEFT AUTO VI</h3><p>Get the official game for PS5 or Xbox Series X|S. Rockstar confirms Xbox Cloud Gaming and console Remote Play support.</p><a href="https://www.rockstargames.com/VI" target="_blank" rel="noopener noreferrer">GTA VI OFFICIAL PAGE ↗</a><p><a href="https://www.xbox.com/en-US/play" target="_blank" rel="noopener noreferrer">OPEN XBOX CLOUD GAMING ↗</a> · <a href="https://www.playstation.com/en-us/games/grand-theft-auto-vi/" target="_blank" rel="noopener noreferrer">PS5 STORE ↗</a></p></article>
+</div><p class="note">If a school or workplace network blocks a game or streaming service, CART3R cannot override that network policy. Use these services on a network where you are permitted to access them.</p></section>
+<section id="about" class="about"><p class="eyebrow">BUILT FOR PLAYERS</p><h2>ONE HUB. <em>ENDLESS PLAY.</em></h2><p>Original games, instant play, and game discovery in one mobile-friendly place.</p></section></main><footer>© <span id="year"></span> CART3R GAMING HUB <span>PLAY SMART. PLAY YOUR WAY.</span></footer><script src="/app.js"></script><script src="/arcade.js"></script><script src="/city.js"></script></body></html>
+
+==============================================================================
+FILE: public/styles.css
+==============================================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;700&display=swap');
+:root{--bg:#090b12;--panel:#141a27;--line:#2a3345;--cyan:#53f3e2;--pink:#ff4fa3;--muted:#a4aec1}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:#f5f7ff;font-family:'DM Sans',sans-serif}a{color:inherit;text-decoration:none}header{height:70px;padding:0 7vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff18;position:sticky;top:0;background:#090b12ed;z-index:4}.brand{font-weight:bold;letter-spacing:2px}.brand span{color:var(--muted)}nav{display:flex;gap:24px;font-size:13px;color:var(--muted)}.btn{display:inline-block;background:var(--cyan);color:#061014;border:0;border-radius:4px;padding:12px 17px;font-weight:900;font-size:11px;letter-spacing:1px;cursor:pointer}.plain{margin-left:15px;font-size:12px}.hero{padding:80px 8vw;min-height:530px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:radial-gradient(ellipse at 80% 50%,#15313b,transparent 45%)}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:3px;font-weight:bold}.hero h1{font:900 clamp(64px,9vw,112px)/.84 'Barlow Condensed';margin:22px 0}.hero em,h2 em{font-style:normal;color:var(--cyan)}.lead{max-width:450px;line-height:1.8;color:var(--muted);margin-bottom:28px}.art{height:320px;display:grid;place-items:center;position:relative}.orb{width:190px;height:190px;border:2px solid var(--cyan);border-radius:35%;display:grid;place-items:center;color:var(--cyan);font:900 120px 'Barlow Condensed';transform:rotate(-12deg);box-shadow:0 0 75px #53f3e233}.orb span{font-size:45px;color:var(--pink)}.art b{position:absolute;top:25px;right:8%;padding:12px;background:var(--panel);font-size:10px;letter-spacing:2px}section#discover,.arcade{padding:75px 8vw}h2{font:800 clamp(38px,5vw,58px)/1 'Barlow Condensed';margin:10px 0 25px}#search{background:#131a27;border:1px solid var(--line);padding:13px;color:white;min-width:230px;border-radius:4px}#filters{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}#filters button{background:#141a27;border:1px solid var(--line);color:var(--muted);padding:9px 13px;cursor:pointer}#filters button.active{background:var(--cyan);color:#061014}.games{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.game{background:var(--panel);border:1px solid var(--line);padding:17px;min-height:155px}.game small{color:var(--cyan);letter-spacing:2px}.game h3{font:700 25px 'Barlow Condensed';margin:10px 0}.game p,.note{font-size:11px;line-height:1.6;color:var(--muted)}.game a{color:var(--cyan);font-size:10px;font-weight:bold}.arcade{background:#0d111b}.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.minis article{background:var(--panel);border:1px solid var(--line);padding:20px}.minis h3{font:800 27px 'Barlow Condensed'}.minis p{font-size:12px;color:var(--muted)}.minis b{color:var(--cyan)}.target{display:block;margin:15px auto;width:95px;height:95px;border-radius:50%;background:#123136;border:2px solid var(--cyan);color:var(--cyan);font-weight:bold;font-size:18px;cursor:pointer}.minis article>.btn{width:100%;text-align:center}.memory{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:12px 0}.memory button{height:39px;background:#111b29;border:1px solid #344054;color:var(--cyan);font-size:18px}canvas{display:block;width:100%;max-width:300px;height:auto;background:#101b20;margin:12px auto;border:1px solid #344054}.about{text-align:center;padding:85px 20px;background:radial-gradient(ellipse,#142b36,transparent 70%)}.about p:last-child{color:var(--muted);font-size:13px}footer{padding:24px 8vw;border-top:1px solid #ffffff18;display:flex;justify-content:space-between;color:#8993a8;font-size:10px;letter-spacing:1px}
+@media(max-width:800px){.games{grid-template-columns:repeat(2,1fr)}.minis{grid-template-columns:1fr}.hero{grid-template-columns:1fr;padding:55px 7vw}.art{height:230px}.orb{width:145px;height:145px;font-size:90px}}@media(max-width:550px){header{padding:0 5vw}nav{display:none}.hero h1{font-size:68px}.hero{min-height:0}.games{grid-template-columns:1fr 1fr}section#discover,.arcade{padding:55px 6vw}#search{width:100%}footer{flex-direction:column;gap:10px}}
+
+/* CART3R built-in arcade expansion */
+.new-games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card-top{display:flex;justify-content:space-between;align-items:center}.card-top small{color:var(--cyan);letter-spacing:2px;font-size:10px}.card-top span{font-size:22px}.game-ui{border-top:1px solid var(--line);padding-top:14px;margin-top:12px;display:grid;gap:10px}.game-status{color:var(--cyan);font-size:13px;min-height:20px}.game-ui button{cursor:pointer}.inline-controls,.choice-row{display:flex;gap:8px}.inline-controls input{min-width:0;flex:1}.inline-controls button,.choice-row button,.sub-btn,.color-options button{background:#202b3d;color:#f5f7ff;border:1px solid #38465e;padding:10px 13px;border-radius:4px;font-weight:bold}.game-ui input{width:100%;background:#0d121d;color:white;border:1px solid var(--line);padding:11px;border-radius:4px}.game-ui small{color:var(--muted)}.choice-row>*{flex:1}.ttt-board{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:210px}.ttt-board button{height:54px;background:#0d121d;border:1px solid #38465e;color:var(--cyan);font-size:25px;font-weight:bold}.reaction-pad{height:65px;border:1px solid var(--cyan);background:#172d34;color:var(--cyan);font-weight:900;border-radius:5px}.reaction-pad.ready{background:#1e9b62;color:white;border-color:#1e9b62}.whack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:210px}.whack-grid button{height:43px;border-radius:50%;background:#0d121d;border:1px solid #38465e;color:#7d8ba4;font-size:20px}.whack-grid button.lit{background:var(--pink);color:#160a13;box-shadow:0 0 18px #ff4fa388}.color-options{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.color-options button{padding:10px 3px;font-size:10px}.number-card{background:#0d121d;border:1px solid var(--cyan);border-radius:8px;max-width:90px;padding:15px;text-align:center;font-size:30px;font-weight:900;color:var(--cyan)}#dodgeCanvas{width:100%;max-width:280px;height:auto;margin:0}#mathAnswer{max-width:130px}.classics{background:#0d111b}.section-lead{color:var(--muted);font-size:13px;line-height:1.7;max-width:750px;margin-bottom:25px}
+@media(max-width:800px){.new-games{grid-template-columns:1fr}}@media(max-width:550px){.choice-row button{padding:9px 5px;font-size:11px}}
+
+/* Official commercial game launch cards */
+#official-play .games{grid-template-columns:repeat(2,minmax(0,1fr))}#official-play .game{min-height:190px}#official-play .game a{display:inline-block;margin:7px 8px 0 0}#official-play .note{margin-top:20px;max-width:760px}
+@media(max-width:650px){#official-play .games{grid-template-columns:1fr}}
+
+/* CART3R City open-world game */
+.city-section{background:radial-gradient(ellipse at 50% 0%,#18303a 0%,#0d111b 55%)}.city-shell{max-width:1000px;background:#101724;border:1px solid #344054;padding:12px;border-radius:8px}.city-hud{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;background:#080e18;color:var(--cyan);font-size:12px;font-weight:bold;letter-spacing:.5px}.city-hud span:last-child{color:#f5f7ff;text-align:right}.city-shell canvas{display:block;width:100%;max-width:none;height:auto;margin:0;border:0;background:#253b35;touch-action:none}.city-controls{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:12px;background:#0b111b}.city-pad{display:grid;gap:5px}.city-pad>button{justify-self:center}.city-pad div{display:flex;gap:5px}.city-controls button{min-width:46px;min-height:42px;border:1px solid #40536a;border-radius:5px;background:#1b2b3d;color:#f5f7ff;font-weight:900;cursor:pointer;touch-action:none}.city-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.city-actions button{padding:0 12px;color:var(--cyan)}.city-help{font-size:11px;line-height:1.6;color:var(--muted);margin:10px 4px 2px}@media(max-width:600px){.city-hud{font-size:10px;gap:6px;padding:8px}.city-controls{align-items:flex-start;flex-direction:column}.city-actions{justify-content:flex-start}.city-actions button{min-height:38px}}
+
+
+==============================================================================
+FILE: public/app.js
+==============================================================================
+
+const games=[
+["Fortnite","Battle Royale","Build and compete in an evolving battle royale.","https://www.fortnite.com/"],
+["Grand Theft Auto VI","Action","Rockstar's next open-world adventure.","https://www.rockstargames.com/"],
+["Red Dead Redemption 2","Adventure","An epic western open-world story.","https://www.rockstargames.com/reddeadredemption2"],
+["Minecraft","Adventure","Build, explore, and create in a sandbox world.","https://www.minecraft.net/"],
+["Call of Duty: Warzone","Action","Free-to-play large-scale combat.","https://www.callofduty.com/warzone"],
+["Apex Legends","Battle Royale","Squad-based hero shooter.","https://www.ea.com/games/apex-legends"],
+["Roblox","Adventure","Explore community-created experiences.","https://www.roblox.com/"],
+["Rocket League","Sports","Soccer with rocket-powered cars.","https://www.rocketleague.com/"],
+["EA SPORTS FC","Sports","Football simulation.","https://www.ea.com/games/ea-sports-fc"],
+["NBA 2K","Sports","Basketball simulation.","https://nba.2k.com/"],
+["Elden Ring","RPG","Explore a vast fantasy world.","https://en.bandainamcoent.eu/elden-ring/elden-ring"],
+["Baldur's Gate 3","RPG","A story-rich role-playing adventure.","https://baldursgate3.game/"],
+["Overwatch 2","Action","Team-based hero action.","https://overwatch.blizzard.com/"],
+["Valorant","Action","Tactical 5v5 shooter.","https://playvalorant.com/"],
+["League of Legends","Action","Strategic multiplayer battle arena.","https://www.leagueoflegends.com/"],
+["Marvel Rivals","Action","Team-based superhero action.","https://www.marvelrivals.com/"],
+["The Sims 4","Adventure","Create people, homes, and stories.","https://www.ea.com/games/the-sims/the-sims-4"],
+["Helldivers 2","Action","Cooperative sci-fi action.","https://www.playstation.com/games/helldivers-2/"],
+["Monster Hunter Wilds","RPG","Hunt monsters in a living ecosystem.","https://www.monsterhunter.com/wilds/"],
+["Stardew Valley","RPG","Farm, fish, and build a country life.","https://www.stardewvalley.net/"]];
+let filter="All";function render(){let q=document.querySelector("#search").value.toLowerCase();document.querySelector("#games").innerHTML=games.filter(g=>(filter==="All"||g[1]===filter)&&g[0].toLowerCase().includes(q)).map(g=>'<article class="game"><small>'+g[1].toUpperCase()+'</small><h3>'+g[0]+'</h3><p>'+g[2]+'</p><a target="_blank" rel="noopener" href="'+g[3]+'">OFFICIAL GAME PAGE ↗</a></article>').join("")||"No games found"}document.querySelector("#search").oninput=render;document.querySelector("#filters").onclick=e=>{if(!e.target.dataset.filter)return;filter=e.target.dataset.filter;document.querySelectorAll("#filters button").forEach(b=>b.classList.toggle("active",b===e.target));render()};render();document.querySelector("#year").textContent=new Date().getFullYear();
+let active=false,score=0,time=15,timer;const tap=document.querySelector("#tap");document.querySelector("#start").onclick=()=>{clearInterval(timer);active=true;score=0;time=15;tap.disabled=false;tap.textContent="TAP!";update();timer=setInterval(()=>{time--;update();if(time<=0){clearInterval(timer);active=false;tap.disabled=true;tap.textContent="DONE"}},1000)};tap.onclick=()=>{if(active){score++;update()}};function update(){document.querySelector("#score").textContent=score;document.querySelector("#time").textContent=time}
+const icons=["◆","●","▲","★","♥","✦"];let vals=[],opened=[],matched=[],moves=0,locked=false;function reset(){vals=[...icons,...icons].sort(()=>Math.random()-.5);opened=[];matched=[];moves=0;locked=false;draw()}function draw(){document.querySelector("#moves").textContent=moves;document.querySelector("#pairs").textContent=matched.length/2+"/6";document.querySelector("#memory").innerHTML=vals.map((v,i)=>'<button data-i="'+i+'">'+(matched.includes(i)||opened.includes(i)?v:"?")+'</button>').join("")}document.querySelector("#memory").onclick=e=>{let i=Number(e.target.dataset.i);if(!e.target.dataset.i||locked||opened.includes(i)||matched.includes(i))return;opened.push(i);draw();if(opened.length===2){moves++;locked=true;let [a,b]=opened;if(vals[a]===vals[b]){matched.push(a,b);opened=[];locked=false;draw()}else setTimeout(()=>{opened=[];locked=false;draw()},650)}};document.querySelector("#reset").onclick=reset;reset();
+const c=document.querySelector("#snake"),ctx=c.getContext("2d"),cell=15,cols=20,rows=16;let body,food,dir,next,loop,alive=false,s=0;function foodNew(){food={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)}}function paint(){ctx.fillStyle="#101b20";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#53f3e2";body.forEach(p=>ctx.fillRect(p.x*cell+1,p.y*cell+1,13,13));ctx.fillStyle="#ff4fa3";ctx.fillRect(food.x*cell+2,food.y*cell+2,11,11);document.querySelector("#snakeScore").textContent=s}function startSnake(){clearInterval(loop);body=[{x:8,y:8},{x:7,y:8},{x:6,y:8}];dir={x:1,y:0};next={x:1,y:0};s=0;alive=true;foodNew();paint();loop=setInterval(step,130)}function step(){dir=next;let h={x:body[0].x+dir.x,y:body[0].y+dir.y};if(h.x<0||h.y<0||h.x>=cols||h.y>=rows||body.some(p=>p.x===h.x&&p.y===h.y)){clearInterval(loop);alive=false;ctx.fillStyle="#ff4fa3";ctx.font="bold 20px sans-serif";ctx.fillText("GAME OVER",95,125);return}body.unshift(h);if(h.x===food.x&&h.y===food.y){s+=10;foodNew()}else body.pop();paint()}function turn(x,y){if(alive&&(x!==-dir.x||y!==-dir.y))next={x,y}}document.querySelector("#snakeStart").onclick=startSnake;document.addEventListener("keydown",e=>{let d={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]}[e.key];if(d){e.preventDefault();turn(...d)}});startSnake();clearInterval(loop);alive=false;
+
+
+==============================================================================
+FILE: public/arcade.js
+==============================================================================
+
+// Ten original games that run directly in CART3R.
+const $=s=>document.querySelector(s), on=(s,fn)=>$(s).addEventListener("click",fn);
+// Quick Math
+let ma=0,ms=0,mt;function mq(){let a=1+Math.random()*20|0,b=1+Math.random()*20|0;ma=a+b;$("#mathStatus").textContent=a+" + "+b+" = ?";$("#mathAnswer").value=""}
+on('[data-action="math-start"]',()=>{clearInterval(mt);ms=0;let end=Date.now()+30000;mq();$("#mathScore").textContent="Score: 0 · 30s";mt=setInterval(()=>{let n=Math.max(0,Math.ceil((end-Date.now())/1000));$("#mathScore").textContent="Score: "+ms+" · "+n+"s";if(!n){clearInterval(mt);$("#mathStatus").textContent="Time! Final score: "+ms}},200)});
+on('[data-action="math-submit"]',()=>{if(!mt)return;if(Number($("#mathAnswer").value)===ma){ms++;mq()}else $("#mathStatus").textContent="Not quite — try again!";$("#mathScore").textContent="Score: "+ms});
+$("#mathAnswer").onkeydown=e=>{if(e.key==="Enter")$('[data-action="math-submit"]').click()};
+// Number Hunt
+let secret=0,guesses=0;function newSecret(){secret=1+Math.random()*100|0;guesses=0;$("#guessStatus").textContent="I'm thinking of a number.";$("#guessCount").textContent="Guesses: 0";$("#guessInput").value=""}newSecret();on('[data-action="guess-reset"]',newSecret);on('[data-action="guess"]',()=>{let n=+$("#guessInput").value;if(!Number.isInteger(n)||n<1||n>100){$("#guessStatus").textContent="Enter 1 to 100.";return}guesses++;$("#guessCount").textContent="Guesses: "+guesses;$("#guessStatus").textContent=n===secret?"🎉 You got it!":n<secret?"Too low — go higher!":"Too high — go lower!"});
+// Rock Paper Scissors
+let ry=0,rc=0;document.querySelectorAll('[data-action="rps"]').forEach(b=>b.onclick=()=>{let opts=["rock","paper","scissors"],cpu=opts[Math.random()*3|0],you=b.dataset.choice,result=you===cpu?"Tie!":({rock:"scissors",paper:"rock",scissors:"paper"}[you]===cpu?(ry++,"You win!"):(rc++,"CPU wins!"));$("#rpsStatus").textContent=you+" vs "+cpu+" — "+result;$("#rpsScore").textContent="You "+ry+" · CPU "+rc});
+// Tic Tac Toe
+let tb=Array(9).fill("");const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],won=m=>wins.some(w=>w.every(i=>tb[i]===m));function tdraw(){document.querySelectorAll("[data-cell]").forEach((b,i)=>{b.textContent=tb[i];b.disabled=!!tb[i]})}function treset(){tb=Array(9).fill("");$("#tttStatus").textContent="Your turn — X.";tdraw()}on('[data-action="ttt-reset"]',treset);document.querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>{let i=+b.dataset.cell;if(tb[i]||won("X")||won("O")||tb.every(Boolean))return;tb[i]="X";if(won("X"))$("#tttStatus").textContent="You win!";else if(!tb.every(Boolean)){let open=tb.map((v,j)=>v?null:j).filter(v=>v!==null);tb[open[Math.random()*open.length|0]]="O";$("#tttStatus").textContent=won("O")?"CPU wins — try again!":tb.every(Boolean)?"Draw!":"Your turn — X."}else $("#tttStatus").textContent="Draw!";tdraw()});treset();
+// Reaction Test
+let rstate="idle",rtime=0,rtimer,best=Infinity;const rp=$("#reactionPad");rp.onclick=()=>{if(rstate==="idle"){rstate="wait";rp.classList.remove("ready");rp.textContent="WAIT…";$("#reactionStatus").textContent="Wait for green.";rtimer=setTimeout(()=>{rstate="go";rtime=performance.now();rp.classList.add("ready");rp.textContent="CLICK NOW!"},1000+Math.random()*3000)}else if(rstate==="wait"){clearTimeout(rtimer);rstate="idle";rp.textContent="TOO SOON — TRY AGAIN";$("#reactionStatus").textContent="False start!"}else{let t=Math.round(performance.now()-rtime);best=Math.min(best,t);rstate="idle";rp.classList.remove("ready");rp.textContent="START AGAIN";$("#reactionStatus").textContent=t+" ms — "+(t<250?"Lightning fast!":"Nice reaction!");$("#reactionBest").textContent="Best: "+best+" ms"}};
+// Whack-a-Dot
+let whScore=0,whLeft=0,whTimer,whActive=-1;const wh=[...document.querySelectorAll("[data-hole]")];function whdraw(){wh.forEach((b,i)=>b.classList.toggle("lit",i===whActive))}on('[data-action="whack-start"]',()=>{clearInterval(whTimer);whScore=0;whLeft=20;whActive=-1;$("#whackStatus").textContent="Hit the glowing dot!";whTimer=setInterval(()=>{whLeft--;whActive=Math.random()*9|0;whdraw();$("#whackScore").textContent="Score: "+whScore+" · "+whLeft+"s";if(!whLeft){clearInterval(whTimer);whActive=-1;whdraw();$("#whackStatus").textContent="Time! Final score: "+whScore}},1000)});wh.forEach((b,i)=>b.onclick=()=>{if(i===whActive&&whLeft>0){whScore++;whActive=-1;whdraw();$("#whackScore").textContent="Score: "+whScore+" · "+whLeft+"s"}});
+// Type Rush
+const phrases=["CART3R LEVEL UP","GAMING IS FOR EVERYONE","PRESS START TO PLAY","DODGE THE PIXEL STORM","READY PLAYER ONE"];let phrase="",typedAt=0;on('[data-action="typing-start"]',()=>{phrase=phrases[Math.random()*phrases.length|0];$("#typingPhrase").textContent=phrase;$("#typingInput").value="";$("#typingStatus").textContent="Timer starts when you type.";typedAt=0;$("#typingInput").focus()});$("#typingInput").oninput=e=>{if(!phrase)return;if(!typedAt)typedAt=Date.now();if(e.target.value===phrase){$("#typingStatus").textContent="Finished in "+((Date.now()-typedAt)/1000).toFixed(2)+" seconds!";phrase=""}else if(!phrase.startsWith(e.target.value))$("#typingStatus").textContent="Check your spelling."};
+// Color Snap
+let color="",cs=0;function colorNext(){color=["red","blue","green","yellow"][Math.random()*4|0];$("#colorPrompt").textContent="TAP: "+color.toUpperCase()}on('[data-action="color-start"]',()=>{cs=0;colorNext();$("#colorScore").textContent="Score: 0"});document.querySelectorAll('[data-action="color"]').forEach(b=>b.onclick=()=>{if(!color)return;if(b.dataset.color===color){cs++;$("#colorScore").textContent="Score: "+cs;colorNext()}else{$("#colorPrompt").textContent="Miss! It was "+color.toUpperCase()+". Start again.";color=""}});
+// Higher or Lower
+let hc=7,hs=0,hbest=0;function hreset(){hc=1+Math.random()*13|0;hs=0;$("#higherCard").textContent=hc;$("#higherStatus").textContent="Guess the next card.";$("#higherScore").textContent="Streak: 0 · Best: "+hbest}on('[data-action="higher-reset"]',hreset);document.querySelectorAll('[data-action="higher"]').forEach(b=>b.onclick=()=>{let n=1+Math.random()*13|0,ok=n===hc?null:(b.dataset.dir==="higher"?n>hc:n<hc);$("#higherStatus").textContent="Next card: "+n+" — "+(ok===null?"Tie!":ok?"Correct!":"Not this time.");hs=ok?hs+1:0;hbest=Math.max(hbest,hs);hc=n;$("#higherCard").textContent=hc;$("#higherScore").textContent="Streak: "+hs+" · Best: "+hbest});hreset();
+// Pixel Dodge
+const cv=$("#dodgeCanvas"),cx=cv.getContext("2d");let px=130,blocks=[],dloop,alive=false,dstart=0,move=0;function drawD(){cx.fillStyle="#101b20";cx.fillRect(0,0,280,180);cx.fillStyle="#53f3e2";cx.fillRect(px,155,20,18);cx.fillStyle="#ff4fa3";blocks.forEach(b=>cx.fillRect(b.x,b.y,18,18))}function endD(){clearInterval(dloop);alive=false;$("#dodgeScore").textContent="Survived: "+Math.floor((Date.now()-dstart)/1000)+"s";drawD();cx.fillStyle="white";cx.font="bold 18px sans-serif";cx.fillText("GAME OVER",92,95)}function stepD(){px=Math.max(0,Math.min(260,px+move*7));if(Math.random()<.09)blocks.push({x:Math.random()*262,y:-20});blocks.forEach(b=>b.y+=3);blocks=blocks.filter(b=>b.y<185);drawD();if(blocks.some(b=>b.x<px+20&&b.x+18>px&&b.y<173&&b.y+18>155)){endD();return}$("#dodgeScore").textContent="Time: "+Math.floor((Date.now()-dstart)/1000)+"s"}on('[data-action="dodge-start"]',()=>{clearInterval(dloop);px=130;blocks=[];dstart=Date.now();alive=true;move=0;drawD();dloop=setInterval(stepD,40)});const left=$('[data-action="dodge-left"]'),right=$('[data-action="dodge-right"]');left.onpointerdown=()=>move=-1;right.onpointerdown=()=>move=1;[left,right].forEach(b=>{b.onpointerup=()=>move=0;b.onpointerleave=()=>move=0});document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")move=-1;if(e.key==="ArrowRight")move=1});document.addEventListener("keyup",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight")move=0});
+
+
+==============================================================================
+FILE: public/city.js
+==============================================================================
+
+// CART3R City — original top-down open-world driving and delivery game.
+(()=>{
+const canvas=document.getElementById("cityCanvas");if(!canvas)return;
+const ctx=canvas.getContext("2d"),W=2400,H=1800,viewW=960,viewH=560;
+const hud={mode:document.getElementById("cityMode"),cash:document.getElementById("cityCash"),mission:document.getElementById("cityMission")};
+const keys=new Set();let player={x:315,y:300,a:0},car=null,cash=0,mission=0,done=false,started=false,last=0;
+const roads=[100,500,900,1300,1700,2100],roadWidth=112;
+const buildings=[];
+for(let gx=0;gx<5;gx++)for(let gy=0;gy<4;gy++){
+ const bx=roads[gx]+roadWidth/2+35,by=roads[gy]+roadWidth/2+35;
+ const bw=roads[gx+1]-roads[gx]-roadWidth-70,bh=roads[gy+1]-roads[gy]-roadWidth-70;
+ if(bw>70&&bh>70){buildings.push({x:bx,y:by,w:bw*.48,h:bh*.8,c:["#53616c","#766b63","#4b5e59","#68617a"][(gx+gy)%4]});buildings.push({x:bx+bw*.52,y:by,w:bw*.43,h:bh*.62,c:["#625c50","#465c70","#6c6258"][(gx+gy+1)%3]});}
+}
+const cars=[
+{x:255,y:385,a:0,c:"#e0a33b"},{x:740,y:245,a:Math.PI/2,c:"#54a6bd"},{x:1080,y:585,a:0,c:"#b65c68"},
+{x:1450,y:820,a:Math.PI/2,c:"#9b8bd1"},{x:1850,y:1180,a:0,c:"#dbd9c9"},{x:350,y:1050,a:Math.PI/2,c:"#56a77a"},
+{x:2150,y:1510,a:0,c:"#d47743"},{x:1120,y:1510,a:Math.PI/2,c:"#4d8fca"}
+];
+const pickups=[{x:430,y:260},{x:860,y:680},{x:1510,y:370},{x:1920,y:760},{x:740,y:1450},{x:2050,y:1600}];
+const missionA={x:660,y:280},missionB={x:1880,y:1480};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function blocked(x,y,r=13){return buildings.some(b=>x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h)}
+function near(a,b,d){return Math.hypot(a.x-b.x,a.y-b.y)<d}
+function interact(){if(car){player.x=car.x-30;player.y=car.y+24;car=null;hud.mode.textContent="ON FOOT";return}
+ let c=cars.find(v=>!v.used&&near(player,v,66));if(c){car=c;c.used=true;hud.mode.textContent="DRIVING";}}
+document.getElementById("cityInteract").addEventListener("click",interact);
+document.getElementById("cityMissionBtn").addEventListener("click",()=>{if(!started){started=true;mission=0;done=false;hud.mission.textContent="Mission started: reach the blue pickup marker."}else if(done){started=false;mission=0;hud.mission.textContent="Mission reset. Find the blue marker."}});
+document.getElementById("cityReset").addEventListener("click",()=>{player={x:315,y:300,a:0};if(car)car.used=false;car=null;cash=0;started=false;mission=0;done=false;pickups.forEach(p=>p.got=false);cars.forEach(c=>c.used=false);hud.mode.textContent="ON FOOT";hud.cash.textContent="$0";hud.mission.textContent="Find the blue mission marker."});
+document.addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();keys.add(k);if((k==="e"||k===" ")&&!e.repeat)interact()});
+document.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+document.querySelectorAll("[data-city-key]").forEach(b=>{const k=b.dataset.cityKey;b.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(k);b.setPointerCapture(e.pointerId)});["pointerup","pointercancel","lostpointercapture"].forEach(ev=>b.addEventListener(ev,()=>keys.delete(k)))});
+function drawCar(v,x,y){ctx.save();ctx.translate(x,y);ctx.rotate(v.a);ctx.fillStyle="#10151b";ctx.fillRect(-19,-12,40,24);ctx.fillStyle=v.c;ctx.fillRect(-17,-10,34,20);ctx.fillStyle="#a8d7dc";ctx.fillRect(-7,-8,12,16);ctx.fillStyle="#f7e9b1";ctx.fillRect(13,-7,3,5);ctx.fillRect(13,2,3,5);ctx.restore()}
+function world(){
+ ctx.fillStyle="#42634e";ctx.fillRect(0,0,W,H);
+ // city blocks and road grid
+ ctx.fillStyle="#303a43";roads.forEach(x=>ctx.fillRect(x-roadWidth/2,0,roadWidth,H));roads.forEach(y=>ctx.fillRect(0,y-roadWidth/2,W,roadWidth));
+ ctx.strokeStyle="#c6b982";ctx.lineWidth=3;ctx.setLineDash([22,24]);roads.forEach(x=>{ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()});roads.forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()});ctx.setLineDash([]);
+ // sidewalks
+ ctx.strokeStyle="#87918b";ctx.lineWidth=5;roads.forEach(x=>{ctx.beginPath();ctx.moveTo(x-roadWidth/2+8,0);ctx.lineTo(x-roadWidth/2+8,H);ctx.stroke();ctx.beginPath();ctx.moveTo(x+roadWidth/2-8,0);ctx.lineTo(x+roadWidth/2-8,H);ctx.stroke()});
+ buildings.forEach((b,i)=>{ctx.fillStyle="#202a2d";ctx.fillRect(b.x+9,b.y+12,b.w,b.h);ctx.fillStyle=b.c;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle="#aab6b0";ctx.fillRect(b.x+8,b.y+8,b.w-16,5);ctx.fillStyle="#9ec4c1";for(let x=b.x+15;x<b.x+b.w-12;x+=34)for(let y=b.y+18;y<b.y+b.h-10;y+=34)ctx.fillRect(x,y,12,10);ctx.fillStyle="#313c43";ctx.fillRect(b.x+b.w*.4,b.y+b.h-20,24,20)});
+ // parks and street trees
+ for(let i=0;i<36;i++){let x=(i*347+190)%W,y=(i*229+120)%H;if(!blocked(x,y,20)){ctx.fillStyle="#294b3a";ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fill();ctx.fillStyle="#70a36d";ctx.beginPath();ctx.arc(x-3,y-4,10,0,Math.PI*2);ctx.fill()}}
+ pickups.forEach(p=>{if(!p.got){ctx.fillStyle="#ffd65a";ctx.beginPath();ctx.arc(p.x,p.y,10,0,Math.PI*2);ctx.fill();ctx.fillStyle="#573d11";ctx.font="bold 12px sans-serif";ctx.fillText("$",p.x-4,p.y+4)}});
+ if(started&&!done){let m=mission===0?missionA:missionB;ctx.strokeStyle=mission===0?"#52dfff":"#ffe36a";ctx.lineWidth=5;ctx.beginPath();ctx.arc(m.x,m.y,23+Math.sin(Date.now()/180)*4,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(m.x,m.y,5,0,Math.PI*2);ctx.fill()}
+ else if(!started){ctx.strokeStyle="#52dfff";ctx.lineWidth=5;ctx.beginPath();ctx.arc(missionA.x,missionA.y,20,0,Math.PI*2);ctx.stroke()}
+ cars.forEach(v=>{if(!v.used)drawCar(v,v.x,v.y)});if(car)drawCar(car,car.x,car.y);
+ if(!car){ctx.fillStyle="#52f3e2";ctx.beginPath();ctx.arc(player.x,player.y,12,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e8ffff";ctx.beginPath();ctx.arc(player.x,player.y-4,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#142c2b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x,player.y+8);ctx.lineTo(player.x-5,player.y+17);ctx.moveTo(player.x,player.y+8);ctx.lineTo(player.x+5,player.y+17);ctx.stroke()}
+}
+function update(dt){let up=keys.has("w")||keys.has("arrowup"),down=keys.has("s")||keys.has("arrowdown"),left=keys.has("a")||keys.has("arrowleft"),right=keys.has("d")||keys.has("arrowright");
+ if(car){let accel=(up?1:0)-(down?1:0),turn=(right?1:0)-(left?1:0);car.a+=turn*dt*(accel<0?-2.5:2.5);let speed=accel*260*dt,nx=car.x+Math.cos(car.a)*speed,ny=car.y+Math.sin(car.a)*speed;if(!blocked(nx,ny,17)){car.x=clamp(nx,15,W-15);car.y=clamp(ny,15,H-15)}}
+ else{let dx=(right?1:0)-(left?1:0),dy=(down?1:0)-(up?1:0),len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;let nx=player.x+dx*185*dt,ny=player.y+dy*185*dt;if(!blocked(nx,player.y))player.x=clamp(nx,10,W-10);if(!blocked(player.x,ny))player.y=clamp(ny,10,H-10);if(dx||dy)player.a=Math.atan2(dy,dx)}
+ let actor=car||player;pickups.forEach(p=>{if(!p.got&&near(actor,p,28)){p.got=true;cash+=50;hud.cash.textContent="$"+cash}});
+ if(started&&!done){let target=mission===0?missionA:missionB;if(near(actor,target,40)){if(mission===0){mission=1;hud.mission.textContent="Pickup secured! Deliver it to the gold marker."}else{done=true;cash+=250;hud.cash.textContent="$"+cash;hud.mission.textContent="Delivery complete! +$250. Start another run when ready.";}}}
+}
+function frame(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;update(dt);let actor=car||player,cx=clamp(actor.x-viewW/2,0,W-viewW),cy=clamp(actor.y-viewH/2,0,H-viewH);ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.translate(-cx,-cy);world();ctx.restore();requestAnimationFrame(frame)}
+hud.cash.textContent="$0";requestAnimationFrame(frame);
+})();
